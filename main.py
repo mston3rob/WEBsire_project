@@ -8,6 +8,7 @@ from data import db_session
 from flask_login import LoginManager, login_user
 from data import users
 
+
 User = users.User
 
 app = Flask(__name__)
@@ -58,12 +59,11 @@ def register():
         db_sess = db_session.create_session()
         if form.password.data == form.confirm_password.data:
             user = User()
-            user.name = form.name.data.split()[1]
-            user.surname = form.name.data.split()[0]
-            user.patronymic = form.name.data.split()[2]
+            user.initials = form.name.data
             user.hashed_password = generate_password_hash(form.password.data)
             user.teacher = True
             user.login = form.login.data
+            user.hashed_key_access = None
             db_sess = db_session.create_session()
             db_sess.add(user)
             db_sess.commit()
@@ -77,6 +77,7 @@ def register():
 @app.route('/')
 def home():
     return '1'
+
 
 
 def main():

@@ -13,4 +13,3 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     initials = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     teacher = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
-    hashed_key_access = sqlalchemy.Column(sqlalchemy.String, nullable=True)

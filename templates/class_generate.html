@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div>
+        <h1>Создание группы</h1>
+        {{message}}
+    </div>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    <p>
+            {{ form.login.label }}<br>
+            {{ form.login(class="form-control", type="login") }}<br>
+            {% for error in form.login.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+    </p>
+    <p>
+            {{ form.name_group.label }}<br>
+            {{ form.name_group(class="form-control", type="login") }}<br>
+            {% for error in form.name_group.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+    </p>
+    <div class="form-group">
+        {{ form.initials.label }}
+        <textarea {{ form.initials(class="form-control", id="exampleFormControlTextarea1", rows='20' ) }} </textarea>
+
+    </div>
+
+    </form>
+{% endblock %}

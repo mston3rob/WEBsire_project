@@ -63,6 +63,9 @@ class GroupAppend(FlaskForm):
     login = StringField('Введите логин группы', validators=[DataRequired()])
     name_group = StringField('Введите название группы', validators=[DataRequired()])
     submit = SubmitField('Создать группу')
+    quantity = 1
+    delete = SubmitField(label='Убрать', render_kw={'formnovalidate': True})
+    add = SubmitField(label='Добавить +', render_kw={'formnovalidate': True})
 
 
 @app.route('/logout')
@@ -94,6 +97,8 @@ def login():
 @login_required
 def class_generate():
     form = GroupAppend()
+    if form.add.data:
+        form.quantity += 1
     if form.submit():
         if form.initials.data:
             db_sess = db_session.create_session()

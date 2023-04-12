@@ -9,7 +9,7 @@ class Group(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = 'groups'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    id_teacher = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True)
+    id_teacher = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=True)
     login_group = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True)
     name_group = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True)
     hashed_key_access = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True)

@@ -2,8 +2,8 @@ from flask import Flask, redirect
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from flask import Flask, request, render_template
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, EmailField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, EmailField, FieldList, FormField, SelectField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
 from data import db_session
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from data import users, groups
@@ -20,6 +20,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
+quantity = 2
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -58,14 +59,22 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Зарегестрироваться')
 
 
+class B(FlaskForm):
+    inits = StringField(validators=[DataRequired()])
+
+
 class GroupAppend(FlaskForm):
-    initials = StringField('Введите всех учеников одной группы/класса в формате ФИО', validators=[DataRequired()])
+    initials = FieldList(FormField(B), min_entries=0, label='Введите всех учеников одной группы/класса в формате ФИО')
     login = StringField('Введите логин группы', validators=[DataRequired()])
     name_group = StringField('Введите название группы', validators=[DataRequired()])
     submit = SubmitField('Создать группу')
-    quantity = 1
-    delete = SubmitField(label='Убрать', render_kw={'formnovalidate': True})
-    add = SubmitField(label='Добавить +', render_kw={'formnovalidate': True})
+    count = StringField('Введите количество учеников группы:', validators=[DataRequired()])
+    refresh = SubmitField(label='Обновить', render_kw={'formnovalidate': True})
+
+
+class PreGroupAppend(FlaskForm):
+    count = StringField('Введите количество учеников группы:', validators=[DataRequired()])
+    refresh = SubmitField(label='Обновить', render_kw={'formnovalidate': True})
 
 
 @app.route('/logout')
@@ -92,43 +101,50 @@ def login():
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
+flag = False
 
 @app.route('/class_generate', methods=['GET', 'POST'])
 @login_required
 def class_generate():
+    global GroupAppend
+    global flag
     form = GroupAppend()
-    if form.add.data:
-        form.quantity += 1
-    if form.submit():
-        if form.initials.data:
-            db_sess = db_session.create_session()
-            a = form.initials.data
-            if len(a.split(',')) > 1:
-                separator = ','
-            else:
-                separator = '\r\n'
-            login = form.login.data
-            name_group = form.name_group.data
-            group = Group()
-            group.id_teacher = current_user.id
-            group.login_group = login
-            group.name_group = form.name_group.data
+    form1 = PreGroupAppend()
+    if form.refresh.data:
+        if form.count.data:
 
-            db_sess.add(group)
+            class GroupAppend(FlaskForm):
+                initials = FieldList(FormField(B), min_entries=int(form.count.data), max_entries=int(form.count.data),
+                                     label='Введите всех учеников одной группы/класса в формате ФИО')
+                login = StringField('Введите логин группы', validators=[DataRequired()])
+                name_group = StringField('Введите название группы', validators=[DataRequired()])
+                submit = SubmitField('Создать группу')
+                count = StringField('Введите количество учеников группы:', validators=[DataRequired()])
+                refresh = SubmitField(label='Обновить', render_kw={'formnovalidate': True})
+
+            form = GroupAppend()
+            return render_template('class_generate.html', title='Создаие группы', form=form)
+
+        else:
+            return render_template('preClassGenerate.html', title='Создаие группы', form=form1)
+    if form.submit():
+        db_sess = db_session.create_session()
+        for i in form.initials.data:
+            user = User()
+            user.initials = i['inits']
+            user.hashed_password = generate_password_hash(generatePasswordToUsers())
+            user.teacher = False
+            user.login = form.login.data
+            user.hashed_key_access = None
+            db_sess = db_session.create_session()
+            db_sess.add(user)
             db_sess.commit()
 
-            for i in a.split(separator):
-                user = User()
-                user.initials = i.strip()
-                user.hashed_password = generate_password_hash(generatePasswordToUsers())
-                user.teacher = False
-                user.login = form.login.data
-                user.hashed_key_access = None
-
-                db_sess.add(user)
-                db_sess.commit()
-            return redirect('/listtestst')
-    return render_template('class_generate.html', title='Создаие группы', form=form)
+        group = Group()
+        group.login_group = form.login.data
+        group.name_group = form.name_group.data
+        group.id_teacher = current_user.id
+    return render_template('preClassGenerate.html', title='Создаие группы', form=form1)
 
 
 @app.route('/listtestst', methods=['GET', 'POST'])
@@ -185,3 +201,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    

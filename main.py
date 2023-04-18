@@ -1,12 +1,10 @@
-from flask import Flask, redirect, session
+from flask import Flask, redirect, session, request, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
-from flask import Flask, request, render_template
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, EmailField, FieldList, FormField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
-from data import db_session
+from data import db_session, users, groups
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
-from data import users, groups
 import datetime
 import random
 import string
@@ -160,7 +158,6 @@ def class_generate():
                 user.teacher = False
                 user.login = form.login.data
                 user.hashed_key_access = None
-                db_sess = db_session.create_session()
                 db_sess.add(user)
                 db_sess.commit()
 
@@ -179,7 +176,6 @@ def class_generate():
                         listOfPasswords.append(('', ''))
                 elif len(listOfPasswords) % 3 == 2:
                     listOfPasswords.append(('', ''))
-                print(listOfPasswords)
                 session['last_login_added'] = listOfPasswords
                 session['key_access'] = key
                 return redirect('/password_list')
@@ -246,5 +242,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    

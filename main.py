@@ -165,6 +165,7 @@ def class_generate():
             group.name_group = form.name_group.data
             group.id_teacher = current_user.id
             group.hashed_key_access = generate_password_hash(key)
+            group.creator = True
             db_sess = db_session.create_session()
             db_sess.add(group)
             db_sess.commit()

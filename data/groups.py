@@ -13,3 +13,4 @@ class Group(SqlAlchemyBase, UserMixin, SerializerMixin):
     login_group = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True)
     name_group = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True)
     hashed_key_access = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True)
+    creator = sqlalchemy.Column(sqlalchemy.Boolean, index=True, nullable=True)

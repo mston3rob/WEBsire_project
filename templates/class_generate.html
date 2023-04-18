@@ -3,11 +3,15 @@
 {% block content %}
     <div>
         <h1>Создание группы</h1>
-        {{message}}
     </div>
     <form action="" method="post">
     {{ form.hidden_tag() }}
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    <div class="withButtonError">
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        {% if message %}
+            <div class="alert alert-danger">{{message}}</div>
+        {% endif %}
+    </div>
     <div class="student_cell">
     {{form.count.label}}
     </div>

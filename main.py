@@ -110,13 +110,11 @@ def login():
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
-flag = False
-
 @app.route('/class_generate', methods=['GET', 'POST'])
 @login_required
 def class_generate():
     global GroupAppend
-    global flag
+    db_sess = db_session.create_session()
     form = GroupAppend()
     form1 = PreGroupAppend()
     if form.refresh.data:
@@ -139,7 +137,14 @@ def class_generate():
 
     if request.method == 'POST':
         if form.validate:
-            db_sess = db_session.create_session()
+            login = db_sess.query(User).filter(User.login == form.login.data).first()
+            names_class = db_sess.query(Group.name_group).filter(Group.id_teacher == current_user.id).all()
+            if login:
+                return render_template('class_generate.html', title='Создаие группы', form=form, message='Логин уже занят')
+            for i in names_class:
+                if form.name_group.data == i[0]:
+                    return render_template('class_generate.html', title='Создаие группы', form=form,
+                                            message='Вы уже создавали группу с таким наименованием')
             listOfPasswords = []
             key = generateAccessKey()
             for i in form.initials.data:
@@ -165,7 +170,8 @@ def class_generate():
             db_sess.commit()
             if listOfPasswords:
                 if len(listOfPasswords) % 3 == 1:
-                    listOfPasswords.append(('', ''), ('', ''))
+                    for i in range(2):
+                        listOfPasswords.append(('', ''))
                 elif len(listOfPasswords) % 3 == 2:
                     listOfPasswords.append(('', ''))
                 print(listOfPasswords)

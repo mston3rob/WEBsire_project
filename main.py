@@ -20,7 +20,6 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
-quantity = 2
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -58,6 +57,7 @@ class LoginForm(FlaskForm):
     password = PasswordField('Пароль', validators=[DataRequired()])
     remember_me = BooleanField('Запомнить меня')
     submit = SubmitField('Войти')
+    register_btn = SubmitField('Зарегестрироваться')
 
 
 class RegisterForm(FlaskForm):
@@ -109,6 +109,7 @@ def login():
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
+
 
 @app.route('/class_generate', methods=['GET', 'POST'])
 @login_required
@@ -232,7 +233,7 @@ def passList():
 
 @app.route('/')
 def home():
-    return '1'
+    return redirect('/login')
 
 
 def main():

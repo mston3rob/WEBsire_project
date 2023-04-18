@@ -40,7 +40,11 @@
                 </div>
             {% endfor %}
         </p>
-        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        <div class="for_register_form">
+            <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+            <p class="text_reg">Уже есть аккаунт? Тогда:</p>
+            <p>{{ form.login_btn(type="submit", class="btn btn-secondary") }}</p>
+        </div>
         <div>{{ message }}</div>
     </form>
 {% endblock %}

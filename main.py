@@ -57,7 +57,7 @@ class LoginForm(FlaskForm):
     password = PasswordField('Пароль', validators=[DataRequired()])
     remember_me = BooleanField('Запомнить меня')
     submit = SubmitField('Войти')
-    register_btn = SubmitField('Зарегестрироваться')
+    register_btn = SubmitField('Зарегестрироваться', render_kw={'formnovalidate': True})
 
 
 class RegisterForm(FlaskForm):
@@ -66,6 +66,7 @@ class RegisterForm(FlaskForm):
     password = PasswordField('Пароль', validators=[DataRequired()])
     confirm_password = PasswordField('Подтвердите пароль', validators=[DataRequired()])
     submit = SubmitField('Зарегестрироваться')
+    login_btn = SubmitField('Войти', render_kw={'formnovalidate': True})
 
 
 class B(FlaskForm):
@@ -96,6 +97,8 @@ def logout():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    if form.register_btn.data:
+        return redirect('/register')
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.login == form.login.data).first()

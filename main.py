@@ -1,4 +1,4 @@
-from flask import Flask, redirect
+from flask import Flask, redirect, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from flask import Flask, request, render_template
@@ -37,6 +37,15 @@ def generatePasswordToUsers():
             password += random.choice(a)
         exist = db_sess.query(User).filter(User.hashed_password == generate_password_hash(password)).first()
     return password
+
+
+def generateAccessKey():
+    nums = '1234567890'
+    key = ''
+    for i in range(7):
+        key += random.choice(nums)
+    return key + random.choice(string.ascii_uppercase)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -127,23 +136,42 @@ def class_generate():
 
         else:
             return render_template('preClassGenerate.html', title='Создаие группы', form=form1)
-    if form.submit():
-        db_sess = db_session.create_session()
-        for i in form.initials.data:
-            user = User()
-            user.initials = i['inits']
-            user.hashed_password = generate_password_hash(generatePasswordToUsers())
-            user.teacher = False
-            user.login = form.login.data
-            user.hashed_key_access = None
-            db_sess = db_session.create_session()
-            db_sess.add(user)
-            db_sess.commit()
 
-        group = Group()
-        group.login_group = form.login.data
-        group.name_group = form.name_group.data
-        group.id_teacher = current_user.id
+    if request.method == 'POST':
+        if form.validate:
+            db_sess = db_session.create_session()
+            listOfPasswords = []
+            key = generateAccessKey()
+            for i in form.initials.data:
+                password = generatePasswordToUsers()
+                listOfPasswords.append((i['inits'], password))
+                user = User()
+                user.initials = i['inits']
+                user.hashed_password = generate_password_hash(password)
+                user.teacher = False
+                user.login = form.login.data
+                user.hashed_key_access = None
+                db_sess = db_session.create_session()
+                db_sess.add(user)
+                db_sess.commit()
+
+            group = Group()
+            group.login_group = form.login.data
+            group.name_group = form.name_group.data
+            group.id_teacher = current_user.id
+            group.hashed_key_access = generate_password_hash(key)
+            db_sess = db_session.create_session()
+            db_sess.add(group)
+            db_sess.commit()
+            if listOfPasswords:
+                if len(listOfPasswords) % 3 == 1:
+                    listOfPasswords.append(('', ''), ('', ''))
+                elif len(listOfPasswords) % 3 == 2:
+                    listOfPasswords.append(('', ''))
+                print(listOfPasswords)
+                session['last_login_added'] = listOfPasswords
+                session['key_access'] = key
+                return redirect('/password_list')
     return render_template('preClassGenerate.html', title='Создаие группы', form=form1)
 
 
@@ -188,10 +216,16 @@ def register():
     return render_template('register_form.html', title='Регистрация', form=form)
 
 
+@app.route('/password_list', methods=['GET', 'POST'])
+@login_required
+def passList():
+    return render_template('passwordsList.html', title='Парооли для группы', list=session['last_login_added'],
+                           len=len(session['last_login_added']), key=session['key_access'])
+
+
 @app.route('/')
 def home():
     return '1'
-
 
 
 def main():

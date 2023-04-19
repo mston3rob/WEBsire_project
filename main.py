@@ -134,7 +134,6 @@ def class_generate():
             return render_template('class_generate.html', title='Создаие группы', form=form)
         else:
             return render_template('preClassGenerate.html', title='Создаие группы', form=form1)
-
     if request.method == 'POST':
         if form.validate:
             login = db_sess.query(User).filter(User.login == form.login.data).first()
@@ -160,7 +159,6 @@ def class_generate():
                     user.hashed_key_access = None
                     db_sess.add(user)
                     db_sess.commit()
-
             group = Group()
             group.login_group = form.login.data
             group.name_group = form.name_group.data

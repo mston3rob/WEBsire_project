@@ -22,6 +22,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+
 def generatePasswordToUsers():
     db_sess = db_session.create_session()
     password = ''
@@ -68,7 +69,7 @@ class RegisterForm(FlaskForm):
 
 
 class B(FlaskForm):
-    inits = StringField(validators=[DataRequired()])
+    inits = StringField(validators=[InputRequired()], default='  ')
 
 
 class GroupAppend(FlaskForm):
@@ -121,7 +122,6 @@ def class_generate():
     form1 = PreGroupAppend()
     if form.refresh.data:
         if form.count.data:
-
             class GroupAppend(FlaskForm):
                 initials = FieldList(FormField(B), min_entries=int(form.count.data), max_entries=int(form.count.data),
                                      label='Введите всех учеников одной группы/класса в формате ФИО')
@@ -130,10 +130,8 @@ def class_generate():
                 submit = SubmitField('Создать группу')
                 count = StringField('Введите количество учеников группы:', validators=[DataRequired()])
                 refresh = SubmitField(label='Обновить', render_kw={'formnovalidate': True})
-
             form = GroupAppend()
             return render_template('class_generate.html', title='Создаие группы', form=form)
-
         else:
             return render_template('preClassGenerate.html', title='Создаие группы', form=form1)
 
@@ -150,16 +148,18 @@ def class_generate():
             listOfPasswords = []
             key = generateAccessKey()
             for i in form.initials.data:
-                password = generatePasswordToUsers()
-                listOfPasswords.append((i['inits'], password))
-                user = User()
-                user.initials = i['inits']
-                user.hashed_password = generate_password_hash(password)
-                user.teacher = False
-                user.login = form.login.data
-                user.hashed_key_access = None
-                db_sess.add(user)
-                db_sess.commit()
+                name = i['inits'].strip()
+                if i['inits'] != '  ':
+                    password = generatePasswordToUsers()
+                    listOfPasswords.append((name, password))
+                    user = User()
+                    user.initials = name
+                    user.hashed_password = generate_password_hash(password)
+                    user.teacher = False
+                    user.login = form.login.data
+                    user.hashed_key_access = None
+                    db_sess.add(user)
+                    db_sess.commit()
 
             group = Group()
             group.login_group = form.login.data
@@ -203,6 +203,8 @@ def listtestss():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
+    if form.login_btn.data:
+        return redirect('/login')
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         if form.password.data == form.confirm_password.data:

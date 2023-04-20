@@ -8,7 +8,7 @@ from flask_login import LoginManager, login_user, current_user, login_required, 
 import datetime
 import random
 import string
-
+from forms.testgenerate import TestGenerateForm
 
 User = users.User
 Group = groups.Group
@@ -233,6 +233,19 @@ def passList():
 @app.route('/')
 def home():
     return redirect('/login')
+
+
+@app.route('/generate_tests',  methods=['GET', 'POST'])
+def generate_tests():
+    form = TestGenerateForm()
+    if form.go_out_btn.data:
+        return redirect('/login')
+    if form.validate_on_submit():
+        # db_sess = db_session.create_session()
+        if form.count.data:
+            return render_template('generate_tests.html', title='ИД Создание тестов', form=form)
+    return render_template('generate_tests.html', title='Создание тестов', form=form)
+
 
 
 def main():

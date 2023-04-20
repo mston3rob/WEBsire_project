@@ -8,9 +8,8 @@ class Group(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = 'tests'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    id_teacher = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=True) # кто выложил тест
-    id_group = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=True) # для кого выложен
     question = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True) # вопрос
-    correct_answer = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True) # правильный ответ
+    variant_answers = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True) # все варианты ответа
+    correct_answer = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True) # правильный ответ(ы)
     points = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=True) # баллы за ответ
-    variant = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=True) # вариант
+    img = sqlalchemy.Column(sqlalchemy.BLOB, index=True, nullable=True) # изобрадение к тесту

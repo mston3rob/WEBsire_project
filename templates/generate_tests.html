@@ -4,14 +4,7 @@
     <h1>Создание теста</h1>
     <form action="" method="post">
         {{ form.hidden_tag() }}
-        <div class="row">
-            <div class="col">
-                <p>{{form.go_out_btn(type="submit", class="btn btn-primary")}}</p>
-            </div>
-            <div class="col">
-                <p>{{ form.create_test(type="submit", class="btn btn-primary") }}</p>
-            </div>
-        </div>
+       <input type="submit" name="do_test" value="Создать тест" class="btn btn-primary">
         <p>
             {{ form.to_who.label }}<br>
             {{ form.to_who(class="form-control", type="text") }}<br>
@@ -20,16 +13,21 @@
                     {{ error }}
                 </div>
             {% endfor %}
+        {% if message != "None"%}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
         </p>
         <p>
             {{ form.count.label }}<br>
-            {{ form.count(class="form-control", type="number") }}<br>
+            {{ form.count(class="form-control", type="integer") }}<br>
             {% for error in form.count.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
                 </div>
             {% endfor %}
         </p>
-        <div>{{ message }}</div>
+        <p>{{ form.go_out_btn(type="submit", class="btn btn-secondary") }}</p>
     </form>
 {% endblock %}

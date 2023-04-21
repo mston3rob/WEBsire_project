@@ -237,15 +237,28 @@ def home():
 
 @app.route('/generate_tests',  methods=['GET', 'POST'])
 def generate_tests():
-    form = TestGenerateForm()
-    if form.go_out_btn.data:
-        return redirect('/login')
-    if form.validate_on_submit():
-        # db_sess = db_session.create_session()
-        if form.count.data:
-            return render_template('generate_tests.html', title='ИД Создание тестов', form=form)
-    return render_template('generate_tests.html', title='Создание тестов', form=form)
-
+    if current_user.teacher:
+        count = 0
+        form = TestGenerateForm()
+        if form.go_out_btn.data:
+            return redirect('/listtestst')
+        if request.method == 'POST':
+            if request.form['do_test'] == 'Создать тест':
+                if form.validate:
+                    db_sess = db_session.create_session()
+                    groups = db_sess.query(Group).filter(Group.id_teacher == current_user.id)
+                    if len(list(groups)):
+                        groups_names = list(map(lambda x: x.name_group, groups))
+                        if form.to_who.data not in groups_names:
+                             return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                                     message=f'У вас нет группы с названием {form.to_who.data}')
+                        return render_template('generate_tests.html', title='Создание тестов',
+                                                form=form, message='None')
+                    else:
+                        return render_template('generate_tests.html', title='Создание тестов', form=form, message='У вас нет групп')
+        return render_template('generate_tests.html', title='Создание тестов', form=form, message='None')
+    else:
+        'access denied'
 
 
 def main():

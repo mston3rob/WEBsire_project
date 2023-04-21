@@ -10,7 +10,7 @@ class TestGenerateForm(FlaskForm):
     go_out_btn = SubmitField('Вернуться', render_kw={'formnovalidate': True})
     time_to_test = IntegerField('Время на выполнение теста', validators=[DataRequired()])
     ed_izm = SelectField('Еденицы измерения', coerce=int, choices=[
-        (0, 'Ч'),
-        (1, 'М'),
-        (2, 'С')
+        (1, 'Ч'),
+        (2, 'М'),
+        (3, 'С')
     ])

@@ -9,6 +9,7 @@ import datetime
 import random
 import string
 from forms.testgenerate import TestGenerateForm
+from forms.taskgenerate import TaskGenerateForm
 
 User = users.User
 Group = groups.Group
@@ -264,8 +265,8 @@ def generate_tests():
                         elif form.time_to_test.data < 1:
                             return render_template('generate_tests.html', title='Создание тестов', form=form,
                                                        message=f'Время на тест должно быть больше нуля', pos='3')
-                        generate_tasks(form.to_who.data, form.count.data, form.name.data,
-                                       form.ed_izm.data, form.time_to_test.data)
+                        form_task = TaskGenerateForm()
+                        return render_template('tasks_generate.html', title='Создание заданий тестов', form=form_task)
                     else:
                         return render_template('generate_tests.html', title='Создание тестов',
                                                form=form, message='У вас нет групп', pos='1')
@@ -273,12 +274,6 @@ def generate_tests():
     else:
         return 'access denied'
 
-def generate_tasks(to_who, count_of_tasks, name_of_test, ed_izm, time_to_test):
-    print(name_of_test)
-    print(to_who)
-    print(count_of_tasks)
-    print(ed_izm)
-    print(time_to_test)
 
 def main():
     db_session.global_init("db/tests.db")

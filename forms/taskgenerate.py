@@ -4,4 +4,6 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequir
 
 
 class TaskGenerateForm(FlaskForm):
-    pass
+    do_test_task = SubmitField('Сделать тест', render_kw={'formnovalidate': True})
+    task_conditions = FieldList(StringField('Условие'), validators=[DataRequired()])
+    go_out_btn = SubmitField('Вернуться', render_kw={'formnovalidate': True})

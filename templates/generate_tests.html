@@ -6,6 +6,15 @@
         {{ form.hidden_tag() }}
        <input type="submit" name="do_test" value="Создать тест" class="btn btn-primary">
         <p>
+            {{ form.name.label }}<br>
+            {{ form.name(class="form-control", type="text") }}<br>
+            {% for error in form.name.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
             {{ form.to_who.label }}<br>
             {{ form.to_who(class="form-control", type="text") }}<br>
             {% for error in form.to_who.errors %}
@@ -13,7 +22,7 @@
                     {{ error }}
                 </div>
             {% endfor %}
-        {% if message != "None"%}
+        {% if pos == '1'%}
             <div class="alert alert-danger" role="alert">
                 {{ message }}
             </div>
@@ -27,7 +36,36 @@
                     {{ error }}
                 </div>
             {% endfor %}
+        {% if pos == '2'%}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
         </p>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.time_to_test.label }}<br>
+                {{ form.time_to_test(class="form-control", type="integer") }}<br>
+                {% for error in form.time_to_test.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+            </div>
+            <div class="form-group col-md-4">
+                {{ form.ed_izm.label }}
+                <select name="ed_izm" id="ed_izm" class="form-control">
+                    <option value="0" selected>часы</option>
+                    <option value="1">минуты</option>
+                    <option value="2">секунды</option>
+                </select>
+            </div>
+        </div>
+        {% if pos == '3'%}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
         <p>{{ form.go_out_btn(type="submit", class="btn btn-secondary") }}</p>
     </form>
 {% endblock %}

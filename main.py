@@ -238,7 +238,6 @@ def home():
 @app.route('/generate_tests',  methods=['GET', 'POST'])
 def generate_tests():
     if current_user.teacher:
-        count = 0
         form = TestGenerateForm()
         if form.go_out_btn.data:
             return redirect('/listtestst')
@@ -251,15 +250,35 @@ def generate_tests():
                         groups_names = list(map(lambda x: x.name_group, groups))
                         if form.to_who.data not in groups_names:
                              return render_template('generate_tests.html', title='Создание тестов', form=form,
-                                                     message=f'У вас нет группы с названием {form.to_who.data}')
-                        return render_template('generate_tests.html', title='Создание тестов',
-                                                form=form, message='None')
+                                                     message=f'У вас нет группы с названием {form.to_who.data}', pos='1')
+                        if form.count.data is None:
+                            return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                                   message=f'Не верный тип данных. Должно быть целое число.', pos='2')
+                        elif form.count.data < 1:
+                            return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                            message=f'Количество заданий должно быть больше нуля', pos='2')
+                        if form.time_to_test.data is None:
+                            return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                                       message=f'Не верный тип данных. Должно быть целое число.',
+                                                       pos='3')
+                        elif form.time_to_test.data < 1:
+                            return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                                       message=f'Время на тест должно быть больше нуля', pos='3')
+                        generate_tasks(form.to_who.data, form.count.data, form.name.data,
+                                       form.ed_izm.data, form.time_to_test.data)
                     else:
-                        return render_template('generate_tests.html', title='Создание тестов', form=form, message='У вас нет групп')
-        return render_template('generate_tests.html', title='Создание тестов', form=form, message='None')
+                        return render_template('generate_tests.html', title='Создание тестов',
+                                               form=form, message='У вас нет групп', pos='1')
+        return render_template('generate_tests.html', title='Создание тестов', form=form, pos='0')
     else:
-        'access denied'
+        return 'access denied'
 
+def generate_tasks(to_who, count_of_tasks, name_of_test, ed_izm, time_to_test):
+    print(name_of_test)
+    print(to_who)
+    print(count_of_tasks)
+    print(ed_izm)
+    print(time_to_test)
 
 def main():
     db_session.global_init("db/tests.db")

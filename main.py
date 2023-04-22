@@ -230,6 +230,12 @@ def passList():
                            len=len(session['last_login_added']), key=session['key_access'])
 
 
+@app.route('/listtestst', methods=['GET', 'POST'])
+@login_required
+def home_teacher():
+    pass
+
+
 @app.route('/')
 def home():
     return redirect('/login')

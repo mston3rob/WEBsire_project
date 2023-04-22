@@ -5,8 +5,32 @@
     <title>Title</title>
 </head>
 <body>
-    <p>
-        <a class="btn btn-primary " href="/class_generate">Создать группу</a>
-    </p>
+    <div class="top_home_conteiner">
+        <div class="first_buttons_conteiner_home">
+            <p>
+                <a class="btn btn-primary " href="/class_generate">Создать группу</a>
+            </p>
+            <p>
+                <a class="btn btn-primary " href="/generate_tests">Создать тест</a>
+            </p>
+        </div>
+        <div class="profile_buttons_top_home">
+        </div>
+    </div>
+
+    <div class="bot_home_container">
+        <div class="table">
+            {% set count = len // 2 %}
+            {% for i in range(count)%}
+            <div class="row">
+                {% for j in range(i * 2, i * 2 + 2) %}
+                <div class="cell">
+
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </body>
 </html>

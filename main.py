@@ -266,7 +266,8 @@ def generate_tests():
                             return render_template('generate_tests.html', title='Создание тестов', form=form,
                                                        message=f'Время на тест должно быть больше нуля', pos='3')
                         form_task = TaskGenerateForm()
-                        return render_template('tasks_generate.html', title='Создание заданий тестов', form=form_task)
+                        nums = [i for i in range(1, form.count.data + 1)]
+                        return render_template('tasks_generate.html', title='Создание заданий тестов', form=form_task, nums=nums)
                     else:
                         return render_template('generate_tests.html', title='Создание тестов',
                                                form=form, message='У вас нет групп', pos='1')

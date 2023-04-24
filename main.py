@@ -259,6 +259,10 @@ def generate_tests():
                         elif form.count.data < 1:
                             return render_template('generate_tests.html', title='Создание тестов', form=form,
                                             message=f'Количество заданий должно быть больше нуля', pos='2')
+                        elif form.count.data > 100:
+                            return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                            message=f'Количество заданий должно быть меньше сотни', pos='2')
+
                         if form.time_to_test.data is None:
                             return render_template('generate_tests.html', title='Создание тестов', form=form,
                                                        message=f'Не верный тип данных. Должно быть целое число.',
@@ -279,9 +283,6 @@ def generate_tests():
                             Test.name == form.name.data))))
                         db_sess.close()
                         return redirect(f'/generate_tasks/{what_test}')
-                        # form_task = TaskGenerateForm()
-                        # nums = [i for i in range(1, form.count.data + 1)]
-                        # return render_template('tasks_generate.html', title='Создание заданий тестов', form=form_task, nums=nums)
                     else:
                         return render_template('generate_tests.html', title='Создание тестов',
                                                form=form, message='У вас нет групп', pos='1')
@@ -297,7 +298,10 @@ def generate_tasks(id):
         what_test = db_sess.query(Test).filter(Test.id == id).first()
         count = what_test.questions
         form = TaskGenerateForm()
-        nums = [i for i in range(1, count + 1)]
+        nums = [i for i in range(count)]
+        for task in form.tasks_list:
+            if task.condition.data != None or task.answers.data != None or task.true_answer.data != None:
+                print(task.condition.data, task.answers.data, task.true_answer.data)
         return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums)
     else:
         return 'access denied'

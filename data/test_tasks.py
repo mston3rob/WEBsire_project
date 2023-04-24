@@ -9,7 +9,6 @@ class Test_tasks(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     id_test = sqlalchemy.Column(sqlalchemy.String, primary_key=True)
-    name = sqlalchemy.Column(sqlalchemy.String, primary_key=True, autoincrement=True)
-    question = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    answers = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    true_answer = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    question = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    answers = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    true_answer = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)

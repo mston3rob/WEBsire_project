@@ -3,7 +3,12 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Email
 from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
 
 
+class TaskForm(FlaskForm):
+    condition = StringField('Условие', validators=[DataRequired()])
+    answers = StringField('Ответы', validators=[DataRequired()])
+    true_answer = StringField('Верный ответ', validators=[DataRequired()])
+
+
 class TaskGenerateForm(FlaskForm):
     do_test_task = SubmitField('Сделать тест', render_kw={'formnovalidate': True})
-    task_conditions = FieldList(StringField('Условие'), validators=[DataRequired()])
-    go_out_btn = SubmitField('Вернуться', render_kw={'formnovalidate': True})
+    tasks_list = FieldList(FormField(TaskForm), min_entries=100)

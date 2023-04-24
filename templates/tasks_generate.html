@@ -5,21 +5,24 @@
     <form action="" method="post">
         {{ form.hidden_tag() }}
        <p>{{ form.do_test_task(type="submit", class="btn btn-primary") }}</p>
+
         {% for num in nums%}
 
         <div class="col-md6 border rounded">
-            <h2>№{{ num }}</h2>
+            <h2>№{{ num + 1}}</h2>
                 <div>
-                    Условие задания
+                    Условие задания:
+                </div>
+                    {{form.tasks_list[num]}}
+                <div>
+                    Варианты ответов:
                 </div>
                 <div>
-                    Варианты ответов
-                </div>
-                <div>
-                    Верный ответ
+                    Верный ответ:
                 </div>
         </div>
         {% endfor %}
+
         <a class="btn btn-secondary " href="/listtestst">Вернуться</a>
     </form>
 {% endblock %}

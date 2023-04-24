@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, EmailField, FieldList, FormField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
-from data import db_session, users, groups
+from data import db_session, users, groups, tests
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 import datetime
 import random
@@ -13,6 +13,7 @@ from forms.taskgenerate import TaskGenerateForm
 
 User = users.User
 Group = groups.Group
+Test = tests.Tests
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -265,9 +266,22 @@ def generate_tests():
                         elif form.time_to_test.data < 1:
                             return render_template('generate_tests.html', title='Создание тестов', form=form,
                                                        message=f'Время на тест должно быть больше нуля', pos='3')
-                        form_task = TaskGenerateForm()
-                        nums = [i for i in range(1, form.count.data + 1)]
-                        return render_template('tasks_generate.html', title='Создание заданий тестов', form=form_task, nums=nums)
+                        test = Test()
+                        test.name = form.name.data
+                        test.id_teacher = current_user.id
+                        test.questions = form.count.data
+                        test.time_test = (':').join((str(form.time_to_test.data), str(form.ed_izm.data)))
+                        test.test_redacting = True
+                        db_sess = db_session.create_session()
+                        db_sess.add(test)
+                        db_sess.commit()
+                        what_test = max(list(map(lambda x: x.id, db_sess.query(Test).filter(
+                            Test.name == form.name.data))))
+                        db_sess.close()
+                        return redirect(f'/generate_tasks/{what_test}')
+                        # form_task = TaskGenerateForm()
+                        # nums = [i for i in range(1, form.count.data + 1)]
+                        # return render_template('tasks_generate.html', title='Создание заданий тестов', form=form_task, nums=nums)
                     else:
                         return render_template('generate_tests.html', title='Создание тестов',
                                                form=form, message='У вас нет групп', pos='1')
@@ -275,6 +289,18 @@ def generate_tests():
     else:
         return 'access denied'
 
+
+@app.route('/generate_tasks/<int:id>',  methods=['GET', 'POST'])
+def generate_tasks(id):
+    if current_user.teacher:
+        db_sess = db_session.create_session()
+        what_test = db_sess.query(Test).filter(Test.id == id).first()
+        count = what_test.questions
+        form = TaskGenerateForm()
+        nums = [i for i in range(1, count + 1)]
+        return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums)
+    else:
+        return 'access denied'
 
 def main():
     db_session.global_init("db/tests.db")

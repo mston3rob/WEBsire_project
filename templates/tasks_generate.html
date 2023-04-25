@@ -4,7 +4,10 @@
     <h1>Создание заданий теста</h1>
     <form action="" method="post">
         {{ form.hidden_tag() }}
-       <p>{{ form.do_test_task(type="submit", class="btn btn-primary") }}</p>
+        <div class="form-row">
+            <p>{{ form.do_test_task(type="submit", class="btn btn-primary") }}</p>
+            <p>{{ form.task_restart(type="submit", class="btn btn-primary") }}</p>
+        </div>
         {% for num in nums%}
         <div class="col-md6 border rounded">
             <h2>№{{ num + 1}}</h2>
@@ -18,6 +21,20 @@
                 <div class="form-group col-md-4">
                 {{ form.tasks_list[num].condition_file.label }}
                 {{ form.tasks_list[num].condition_file }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {% if form.tasks_list[num].type_answer.data != 1 %}
+                        {% for answ in form.tasks_list[num].answers %}
+                        {{ answ }}<br>
+                        {% for error in answ.error %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                        {% endfor %}
+                    {% endif%}
                 </div>
             </div>
             <div class="form-row">

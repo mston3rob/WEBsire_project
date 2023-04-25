@@ -9,8 +9,9 @@ class GroupTest(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     id_teacher = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # id учителя что выложил
-    id_group = sqlalchemy.Column(sqlalchemy.String, nullable=True)  # id группы для выкладывания
+    id_group = sqlalchemy.Column(sqlalchemy.String, nullable=True)  # id групп для выкладывания
     id_questions = sqlalchemy.Column(sqlalchemy.String, nullable=True) # id вопросов (через ;)
+    name = sqlalchemy.Column(sqlalchemy.String, nullable=True) # наименование теста
     block_list = sqlalchemy.Column(sqlalchemy.String, nullable=True) # если тест не для всех учеников группы (исключение)
     count = sqlalchemy.Column(sqlalchemy.Integer, nullable=True) # количество прохождений
     time = sqlalchemy.Column(sqlalchemy.DateTime, nullable=True) # время для прохождения

@@ -4,7 +4,7 @@ from .db_session import SqlAlchemyBase
 from sqlalchemy_serializer import SerializerMixin
 
 
-class Answer(SqlAlchemyBase, UserMixin, SerializerMixin):
+class Question(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = 'tests'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)

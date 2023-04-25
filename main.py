@@ -1,9 +1,10 @@
+import flask
 from flask import Flask, redirect, session, request, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, EmailField, FieldList, FormField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
-from data import db_session, users, groups
+from data import db_session, users, groups, groups_tests, tests, tests_api
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 import datetime
 import random
@@ -12,6 +13,8 @@ import string
 
 User = users.User
 Group = groups.Group
+GroupTest = groups_tests.GroupTest
+Question = tests.Question
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -21,6 +24,9 @@ app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
+
 
 
 def generatePasswordToUsers():
@@ -184,7 +190,14 @@ def class_generate():
 @login_required
 def listtestst():
     if current_user.teacher:
-        return render_template('teacher_home.html')
+        list_tests = []
+        db_sess = db_session.create_session()
+        allTests = db_sess.query(GroupTest).filter(GroupTest.id_teacher == current_user.id).all()
+        for i in allTests:
+            for j in list(map(int, i.id_questions.split(';'))):
+                question = db_sess.query(Question).filter(Question.id == j).first()
+                list_tests.append(question)
+        return render_template('teacher_home.html', title='Ваши тесты', quantity=len(allTests), allTests=allTests)
     else:
         return 'access denied'
 
@@ -230,19 +243,18 @@ def passList():
                            len=len(session['last_login_added']), key=session['key_access'])
 
 
-@app.route('/listtestst', methods=['GET', 'POST'])
-@login_required
-def home_teacher():
-    pass
-
-
 @app.route('/')
 def home():
     return redirect('/login')
 
 
+
+
+
 def main():
     db_session.global_init("db/tests.db")
+    app.register_blueprint(tests_api.blueprint)
+    # db_sess = db_session.create_session()
     app.run()
 
 

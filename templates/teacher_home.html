@@ -1,11 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <div class="top_home_conteiner">
+{% extends "base.html" %}
+
+{% block content %}
+    <div>
+    <h1>Ваши тесты</h1>
+    <br>
+    </div>
+    <div class="top_home_container">
         <div class="first_buttons_conteiner_home">
             <p>
                 <a class="btn btn-primary " href="/class_generate">Создать группу</a>
@@ -17,20 +17,24 @@
         <div class="profile_buttons_top_home">
         </div>
     </div>
-
+    <br>
+    {% set a="location.href='google.com'" %}
     <div class="bot_home_container">
-        <div class="table">
-            {% set count = len // 2 %}
-            {% for i in range(count)%}
+        <div class="table_for_homePage">
+            {% for i in range(0, quantity, 2) %}
             <div class="row">
-                {% for j in range(i * 2, i * 2 + 2) %}
-                <div class="cell">
-
+                {% for j in range(i, i + 2) %}
+                {% set a="location.href='/api/tests/" %}
+                {% set link = a + allTests[j].id|string + "'" %}
+                <div onclick={{link}} class="cell_for_homePage">
+                    <p class="header_cell">{{allTests[j].name}}</p>
+                    <p class="text-left">{{current_user.initials}}</p>
                 </div>
                 {% endfor %}
             </div>
             {% endfor %}
         </div>
+
     </div>
-</body>
-</html>
+
+{% endblock %}

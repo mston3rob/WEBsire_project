@@ -1,4 +1,5 @@
 import flask
+import requests
 from flask import Flask, redirect, session, request, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
@@ -8,6 +9,7 @@ from data import db_session, users, groups, groups_tests, tests, tests_api
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 import datetime
 import random
+import os
 import string
 
 
@@ -24,9 +26,6 @@ app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-
-
 
 
 def generatePasswordToUsers():
@@ -75,7 +74,7 @@ class RegisterForm(FlaskForm):
 
 
 class B(FlaskForm):
-    inits = StringField(validators=[InputRequired()], default='  ')
+    inits = StringField()
 
 
 class GroupAppend(FlaskForm):
@@ -154,7 +153,7 @@ def class_generate():
             key = generateAccessKey()
             for i in form.initials.data:
                 name = i['inits'].strip()
-                if i['inits'] != '  ':
+                if i['inits'] != '':
                     password = generatePasswordToUsers()
                     listOfPasswords.append((name, password))
                     user = User()
@@ -163,18 +162,29 @@ def class_generate():
                     user.teacher = False
                     user.login = form.login.data
                     user.hashed_key_access = None
-                    db_sess.add(user)
-                    db_sess.commit()
-            group = Group()
-            group.login_group = form.login.data
-            group.name_group = form.name_group.data
-            group.id_teacher = current_user.id
-            group.hashed_key_access = generate_password_hash(key)
-            group.creator = True
-            db_sess = db_session.create_session()
-            db_sess.add(group)
-            db_sess.commit()
             if listOfPasswords:
+                for i in listOfPasswords:
+                    if len(i[0].split()) != 3:
+                        return render_template('class_generate.html', title='Создаие группы', form=form,
+                                message='ФИО введнеы неккоректно')
+                trueInits = []
+                for i in map(lambda x: x[0], listOfPasswords):
+                    trueInits.append(i)
+                for i in trueInits:
+                    if trueInits.count(i) != 1:
+                        return render_template('class_generate.html', title='Создаие группы', form=form,
+                                message='Змечены повторяющиеся ФИО')
+                db_sess.add(user)
+                db_sess.commit()
+                group = Group()
+                group.login_group = form.login.data
+                group.name_group = form.name_group.data
+                group.id_teacher = current_user.id
+                group.hashed_key_access = generate_password_hash(key)
+                group.creator = True
+                db_sess = db_session.create_session()
+                db_sess.add(group)
+                db_sess.commit()
                 if len(listOfPasswords) % 3 == 1:
                     for i in range(2):
                         listOfPasswords.append(('', ''))
@@ -183,6 +193,11 @@ def class_generate():
                 session['last_login_added'] = listOfPasswords
                 session['key_access'] = key
                 return redirect('/password_list')
+            else:
+                print(listOfPasswords)
+                return render_template('class_generate.html', title='Создаие группы', form=form,
+                                message='Не было введено ни одного инициала')
+
     return render_template('preClassGenerate.html', title='Создаие группы', form=form1)
 
 
@@ -248,14 +263,14 @@ def home():
     return redirect('/login')
 
 
-
-
-
 def main():
     db_session.global_init("db/tests.db")
     app.register_blueprint(tests_api.blueprint)
     # db_sess = db_session.create_session()
-    app.run()
+    #app.run()
+
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
 
 if __name__ == '__main__':

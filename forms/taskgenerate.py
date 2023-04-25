@@ -1,12 +1,22 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, EmailField, FieldList, FormField, SelectField, IntegerField
+from wtforms import StringField, SubmitField, FieldList, FormField, SelectField, IntegerField, TextAreaField, FileField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
 
 
+class TaskAnswerForm(FlaskForm):
+    answer = StringField('Вариант', validators=[DataRequired()])
+
+
 class TaskForm(FlaskForm):
-    condition = StringField('Условие', validators=[DataRequired()])
-    answers = StringField('Ответы', validators=[DataRequired()])
+    condition = TextAreaField('Условие', validators=[DataRequired()])
+    condition_file = FileField('Файл условия')
+    answers = FieldList(FormField(TaskAnswerForm), min_entries=10)
     true_answer = StringField('Верный ответ', validators=[DataRequired()])
+    type_answer = SelectField('Тип ответа', coerce=int, choices=[
+        (1, 'Строка'),
+        (2, 'Выбор из вариантов'),
+        (3, 'Один выбор из вариантов')
+    ])
 
 
 class TaskGenerateForm(FlaskForm):

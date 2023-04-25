@@ -300,8 +300,9 @@ def generate_tasks(id):
         form = TaskGenerateForm()
         nums = [i for i in range(count)]
         for task in form.tasks_list:
-            if task.condition.data != None or task.answers.data != None or task.true_answer.data != None:
-                print(task.condition.data, task.answers.data, task.true_answer.data)
+            if task.condition.data is not None\
+                    or task.true_answer.data is not None:
+                print(task.condition.data, task.true_answer.data, task.type_answer.data, task.condition_file.data)
         return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums)
     else:
         return 'access denied'

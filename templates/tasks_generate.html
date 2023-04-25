@@ -5,22 +5,40 @@
     <form action="" method="post">
         {{ form.hidden_tag() }}
        <p>{{ form.do_test_task(type="submit", class="btn btn-primary") }}</p>
-
         {% for num in nums%}
-
         <div class="col-md6 border rounded">
             <h2>№{{ num + 1}}</h2>
-                <div>
-                    Условие задания:
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <div>
+            {{ form.tasks_list[num].condition.label }}
+            {{ form.tasks_list[num].condition(class="form-control", type="text", row="3")}}
+                    </div>
                 </div>
-                    {{form.tasks_list[num]}}
-                <div>
-                    Варианты ответов:
+                <div class="form-group col-md-4">
+                {{ form.tasks_list[num].condition_file.label }}
+                {{ form.tasks_list[num].condition_file }}
                 </div>
-                <div>
-                    Верный ответ:
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.tasks_list[num].true_answer.label }}<br>
+                    {{ form.tasks_list[num].true_answer(class="form-control", type="text") }}<br>
+                    {% for error in form.tasks_list[num].true_answer.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
                 </div>
+                <div class="form-group col-md-4">
+                {{ form.tasks_list[num].type_answer.label }}
+                {{ form.tasks_list[num].type_answer }}
+                </div>
+            </div>
         </div>
+        <p>
+
+        </p>
         {% endfor %}
 
         <a class="btn btn-secondary " href="/listtestst">Вернуться</a>

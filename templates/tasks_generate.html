@@ -6,7 +6,7 @@
         {{ form.hidden_tag() }}
         <div class="form-row">
             <p>{{ form.do_test_task(type="submit", class="btn btn-primary") }}</p>
-            <p>{{ form.task_restart(type="submit", class="btn btn-primary") }}</p>
+            <p>{{ form.task_reset(type="submit", class="btn btn-secondary") }}</p>
         </div>
         {% for num in nums%}
         <div class="col-md6 border rounded">
@@ -26,6 +26,7 @@
             <div class="form-row">
                 <div class="form-group col-md-6">
                     {% if form.tasks_list[num].type_answer.data != 1 %}
+                    <p>Варинты ответов:</p>
                         {% for answ in form.tasks_list[num].answers %}
                         {{ answ }}<br>
                         {% for error in answ.error %}

@@ -303,6 +303,12 @@ def generate_tasks(id):
             if task.condition.data is not None\
                     or task.true_answer.data is not None:
                 print(task.condition.data, task.true_answer.data, task.type_answer.data, task.condition_file.data)
+        if request.method == 'POST':
+            if form.do_test_task.data:
+                if form.validate_on_submit:
+                    pass
+            if form.task_reset.data:
+                pass
         return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums)
     else:
         return 'access denied'

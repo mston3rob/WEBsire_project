@@ -20,6 +20,6 @@ class TaskForm(FlaskForm):
 
 
 class TaskGenerateForm(FlaskForm):
-    task_restart = SubmitField('Обновить страницу', render_kw={'formnovalidate': True})
+    task_reset = SubmitField('Обновить страницу', render_kw={'formnovalidate': True})
     do_test_task = SubmitField('Сделать тест', render_kw={'formnovalidate': True})
     tasks_list = FieldList(FormField(TaskForm), min_entries=100)

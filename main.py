@@ -171,39 +171,32 @@ def class_generate():
                             if len(j[0].split()) != 3:
                                 return render_template('class_generate.html', title='Создаие группы', form=form,
                                                        message='ФИО введнеы неккоректно')
-
-                        for j in listOfPasswords:
-                            trueInits.append(j[0])
-                        for j in trueInits:
-                            if trueInits.count(j) != 1:
-                                return render_template('class_generate.html', title='Создаие группы', form=form,
-                                                       message='Змечены повторяющиеся ФИО')
                     u.append(user)
 
-                for i in u:
-                    db_sess.add(i)
-                    db_sess.commit()
-                group = Group()
-                group.login_group = form.login.data
-                group.name_group = form.name_group.data
-                group.id_teacher = current_user.id
-                group.hashed_key_access = generate_password_hash(key)
-                group.creator = True
-                db_sess = db_session.create_session()
-                db_sess.add(group)
+            for i in u:
+                db_sess.add(i)
                 db_sess.commit()
-                if len(listOfPasswords) % 3 == 1:
-                    for i in range(2):
-                        listOfPasswords.append(('', ''))
-                elif len(listOfPasswords) % 3 == 2:
+            group = Group()
+            group.login_group = form.login.data
+            group.name_group = form.name_group.data
+            group.id_teacher = current_user.id
+            group.hashed_key_access = generate_password_hash(key)
+            group.creator = True
+            db_sess = db_session.create_session()
+            db_sess.add(group)
+            db_sess.commit()
+            if len(listOfPasswords) % 3 == 1:
+                for i in range(2):
                     listOfPasswords.append(('', ''))
-                session['last_login_added'] = listOfPasswords
-                session['key_access'] = key
-                return redirect('/password_list')
-            else:
-                print(listOfPasswords)
-                return render_template('class_generate.html', title='Создаие группы', form=form,
-                                message='Не было введено ни одного инициала')
+            elif len(listOfPasswords) % 3 == 2:
+                listOfPasswords.append(('', ''))
+            session['last_login_added'] = listOfPasswords
+            session['key_access'] = key
+            return redirect('/password_list')
+        else:
+            print(listOfPasswords)
+            return render_template('class_generate.html', title='Создаие группы', form=form,
+                            message='Не было введено ни одного инициала')
 
     return render_template('preClassGenerate.html', title='Создаие группы', form=form1)
 

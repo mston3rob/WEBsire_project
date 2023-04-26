@@ -1,20 +1,22 @@
-import flask
+from flask import Flask, redirect, session, request, render_template, make_response, jsonify
 import requests
-from flask import Flask, redirect, session, request, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, EmailField, FieldList, FormField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
-from data import db_session, users, groups, groups_tests, tests, tests_api
+from data import db_session, users, groups,  groups_tests, tests, tests_api, test_tasks
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 import datetime
 import random
 import os
 import string
-
+from forms.testgenerate import TestGenerateForm
+from forms.taskgenerate import TaskGenerateForm
 
 User = users.User
 Group = groups.Group
+Test = tests.Tests
+Test_task = test_tasks.Test_tasks
 GroupTest = groups_tests.GroupTest
 Question = tests.Question
 
@@ -262,6 +264,129 @@ def passList():
 def home():
     return redirect('/login')
 
+
+@app.route('/generate_tests',  methods=['GET', 'POST'])
+def generate_tests():
+    if current_user.teacher:
+        form = TestGenerateForm()
+        if form.go_out_btn.data:
+            return redirect('/listtestst')
+        if request.method == 'POST':
+            if request.form['do_test'] == 'Создать тест':
+                if form.validate:
+                    db_sess = db_session.create_session()
+                    groups = db_sess.query(Group).filter(Group.id_teacher == current_user.id)
+                    if len(list(groups)):
+                        groups_names = list(map(lambda x: x.name_group, groups))
+                        if form.to_who.data not in groups_names:
+                             return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                                     message=f'У вас нет группы с названием {form.to_who.data}', pos='1')
+                        if form.count.data is None:
+                            return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                                   message=f'Не верный тип данных. Должно быть целое число.', pos='2')
+                        elif form.count.data < 1:
+                            return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                            message=f'Количество заданий должно быть больше нуля', pos='2')
+                        elif form.count.data > 100:
+                            return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                            message=f'Количество заданий должно быть меньше сотни', pos='2')
+
+                        if form.time_to_test.data is None:
+                            return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                                       message=f'Не верный тип данных. Должно быть целое число.',
+                                                       pos='3')
+                        elif form.time_to_test.data < 1:
+                            return render_template('generate_tests.html', title='Создание тестов', form=form,
+                                                       message=f'Время на тест должно быть больше нуля', pos='3')
+                        test = Test()
+                        test.name = form.name.data
+                        test.id_teacher = current_user.id
+                        test.questions = form.count.data
+                        test.time_test = (':').join((str(form.time_to_test.data), str(form.ed_izm.data)))
+                        test.test_redacting = True
+                        test.is_published = False
+                        db_sess = db_session.create_session()
+                        db_sess.add(test)
+                        db_sess.commit()
+                        what_test = max(list(map(lambda x: x.id, db_sess.query(Test).filter(
+                            Test.name == form.name.data))))
+                        db_sess.close()
+                        return redirect(f'/generate_tasks/{what_test}')
+                    else:
+                        return render_template('generate_tests.html', title='Создание тестов',
+                                               form=form, message='У вас нет групп', pos='1')
+        return render_template('generate_tests.html', title='Создание тестов', form=form, pos='0')
+    else:
+        return 'access denied'
+
+
+@app.route('/generate_tasks/<int:id>',  methods=['GET', 'POST'])
+def generate_tasks(id):
+    if current_user.teacher:
+        db_sess = db_session.create_session()
+        what_test = db_sess.query(Test).filter(Test.id == id).first()
+        if what_test.is_published:
+            return 'access denied'
+        id_what_test = what_test.id
+        count = what_test.questions
+        form = TaskGenerateForm()
+        nums = [i for i in range(count)]
+        if request.method == 'POST':
+            if form.do_test_task.data:
+                if form.validate_on_submit:
+                    for task in range(count):
+                        f_task = form.tasks_list[task]
+                        cond = any(list(map(lambda x: len(x.strip('\r').strip()), f_task.condition.data.split('\n'))))
+                        true_answ = len(f_task.true_answer.data.strip('\r').strip())
+                        if not(cond) or not(true_answ):
+                            return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums, message='Не все поля заполнены', pos='1')
+                        if f_task.cost.data is None:
+                            return render_template('tasks_generate.html', title='Создание заданий тестов', form=form,
+                                                   nums=nums, message='Не тот тип данных для поля количество баллов', pos='1')
+                        elif 0 >= f_task.cost.data:
+                            return render_template('tasks_generate.html', title='Создание заданий тестов', form=form,
+                                                   nums=nums, message='количество баллов должно быть больше нуля',
+                                                   pos='1')
+                    for task_num in range(count):
+                        db_sess = db_session.create_session()
+                        old_task = db_sess.query(Test_task).filter(what_test.id == Test_task.id_test,
+                                                                   task_num + 1 == Test_task.num_in_test).first()
+                        if old_task:
+                            f_task = form.tasks_list[task_num]
+                            old_task.id_test = id_what_test
+                            old_task.question = f_task.condition.data
+                            if f_task.type_answer.data == 1:
+                                old_task.answers = 0
+                                old_task.type_answer = 1
+                            else:
+                                old_task.answers = ('@').join(list(map(lambda x: x.answer.data, f_task.answers)))
+                                old_task.type_answer = f_task.type_answer.data
+                            old_task.true_answer = f_task.true_answer.data
+                            old_task.cost = f_task.cost.data
+                            old_task.num_in_test = task_num + 1
+                            db_sess.commit()
+                        else:
+                            f_task = form.tasks_list[task_num]
+                            task = Test_task()
+                            task.id_test = id_what_test
+                            task.question = f_task.condition.data
+                            if f_task.type_answer.data == 1:
+                                task.answers = 0
+                                task.type_answer = 1
+                            else:
+                                task.answers = ('@').join(list(map(lambda x: x.answer.data, f_task.answers)))
+                                task.type_answer = f_task.type_answer.data
+                            task.true_answer = f_task.true_answer.data
+                            task.cost = f_task.cost.data
+                            task.num_in_test = task_num + 1
+                            db_sess = db_session.create_session()
+                            db_sess.add(task)
+                            db_sess.commit()
+            if form.task_reset.data:
+                pass
+        return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums)
+    else:
+        return 'access denied'
 
 def main():
     db_session.global_init("db/tests.db")

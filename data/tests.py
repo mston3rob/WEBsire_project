@@ -15,5 +15,6 @@ class Tests(SqlAlchemyBase, UserMixin, SerializerMixin):
     questions = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=True) # вопрос
     test_redacting = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     time_test = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    to_who = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     is_published = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     tasks = orm.relationship("Test_tasks", back_populates='test')

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div>
+    <h1>Рабочий стол ученика</h1>
+        {% for test in hto %}
+        <div>
+            <a class="btn btn-primary " href="/do_test_complete/{{ test.id }}">{{ test.name }}</a>
+        </div>
+        {% endfor%}
+         <p>
+             <a class="btn btn-secondary " href="/logout">Выйти</a>
+         </p>
+    </div>
+
+{% endblock %}

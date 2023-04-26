@@ -12,6 +12,7 @@ import os
 import string
 from forms.testgenerate import TestGenerateForm
 from forms.taskgenerate import TaskGenerateForm
+from forms.dotestform import DoTestForm
 
 User = users.User
 Group = groups.Group
@@ -221,7 +222,9 @@ def listtestss():
     if current_user.teacher:
         return 'access denied'
     else:
-        return 'now u are student'
+        db_sess = db_session.create_session()
+        alltests = db_sess.query(Test).filter(Test.to_who == current_user.login).all()
+        return render_template('student_home.html', hto=alltests)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -301,6 +304,7 @@ def generate_tests():
                         test.questions = form.count.data
                         test.time_test = (':').join((str(form.time_to_test.data), str(form.ed_izm.data)))
                         test.test_redacting = True
+                        test.to_who = form.to_who.data
                         test.is_published = False
                         db_sess = db_session.create_session()
                         db_sess.add(test)
@@ -384,6 +388,20 @@ def generate_tasks(id):
         return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums)
     else:
         return 'access denied'
+
+@app.route('/do_test_complete/<int:id>',  methods=['GET', 'POST'])
+def do_test_complete(id):
+    form = DoTestForm()
+    count = 1
+    db_sess = db_session.create_session()
+    what_test = db_sess.query(Test).filter(Test.id == id).first()
+    what_task = db_sess.query(Test_task).filter(what_test.id == Test_task.id_test, Test_task.num_in_test == count).first()
+    if request.method == 'POST':
+        if form.answer.data:
+                count += 1
+
+    return render_template('doing_test.html', form=form, what_test=what_test, what_task=what_task, count=count)
+
 
 def main():
     db_session.global_init("db/tests.db")

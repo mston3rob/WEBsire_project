@@ -19,6 +19,7 @@
     </div>
     <br>
     <div class="bot_home_container">
+        {% if quantity %}
         <div class="table_for_homePage">
             {% for i in range(0, quantity, 2) %}
             <div class="row">
@@ -43,7 +44,10 @@
             </div>
             {% endfor %}
         </div>
-
+        {% endif %}
+        {% if not quantity %}
+        <h1>У вас еще нет созданных тестов</h1>
+        {% endif %}
     </div>
 
 {% endblock %}

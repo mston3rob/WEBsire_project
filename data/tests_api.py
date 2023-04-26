@@ -70,11 +70,16 @@ def get_result():
     pass
 
 
-@blueprint.route('/api/tests_delete/<int:tests_id>', methods=['GET', 'POST', 'DELETE'])
+@blueprint.route('/api/tests_delete/<int:tests_id>', methods=['GET', 'DELETE'])
 @login_required
 def delete_test(tests_id):
-
-    return render_template('deliting_confirm.html', id=tests_id)
+    db_sess = db_session.create_session()
+    test = db_sess.query(GroupTest).get(tests_id)
+    if not test:
+        return jsonify({'error': 'Not found'})
+    db_sess.delete(test)
+    db_sess.commit()
+    return redirect('/listtestst')
 
 
 @blueprint.route('/test_sharing/<int:tests_id>', methods=['GET', 'POST'])

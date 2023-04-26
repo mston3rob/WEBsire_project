@@ -11,10 +11,12 @@
         {% set link1 = a + tests_id|string + "'" %}
         {% set a="location.href='/generate_tasks/" %}
         {% set link2 = a + tests_id|string + "'" %}
+        {% set a="location.href='/api/tests_delete/" %}
+        {% set link3 = a + tests_id|string + "'" %}
         <button type="button" onclick={{link1}} class="btn btn-primary">Выложить</button>
         <button type="button" onclick={{link2}} class="btn btn-secondary">Редактировать</button>
         <button type="button" class="btn btn-secondary">Результаты</button>
-        <button type="button" class="btn btn-danger">Удалить</button>
+        <button type="button" onclick={{link3}} class="btn btn-danger">Удалить</button>
     </div>
 </div>
 

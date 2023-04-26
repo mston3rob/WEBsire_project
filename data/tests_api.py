@@ -49,19 +49,6 @@ class TestPost(FlaskForm):
 
 
 
-# @blueprint.route('/api/tests')
-# @login_required
-# def get_tests():
-#     db_sess = db_session.create_session()
-#     allTests = db_sess.query(GroupTest).filter(GroupTest.id_teacher == 1).all()
-#     return jsonify(
-#         {
-#             'tests':
-#                 [item.to_dict(only=('id_teacher', 'id_group', 'id_questions', 'name'))
-#                  for item in allTests]
-#         }
-#     )
-
 @blueprint.route('/api/tests_resp/<int:tests_id>', methods=['GET'])
 @login_required
 def get_test_for_response(tests_id):

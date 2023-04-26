@@ -8,6 +8,7 @@
     {{ form.hidden_tag() }}
     <div class="withButtonError">
         <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+
         {% if message %}
             <div class="alert alert-danger">{{message}}</div>
         {% endif %}

@@ -261,6 +261,7 @@ def home():
     return redirect('/login')
 
 
+
 @app.route('/generate_tests',  methods=['GET', 'POST'])
 def generate_tests():
     if current_user.teacher:

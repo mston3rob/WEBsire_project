@@ -4,20 +4,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, EmailField, FieldList, FormField, SelectField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
-from data import db_session, users, groups, groups_tests, tests
+from data import db_session, users, groups, groups_tests, tests, test_tasks
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 import datetime
 import random
 import string
 from . import db_session
-from .tests import Question
 import json
 import requests
 
 User = users.User
 Group = groups.Group
-GroupTest = groups_tests.GroupTest
-Question = tests.Question
+GroupTest = tests.Tests
+Question = test_tasks.Test_tasks
 
 blueprint = flask.Blueprint(
     'tests_api',
@@ -50,18 +49,18 @@ class TestPost(FlaskForm):
 
 
 
-@blueprint.route('/api/tests')
-@login_required
-def get_tests():
-    db_sess = db_session.create_session()
-    allTests = db_sess.query(GroupTest).filter(GroupTest.id_teacher == 1).all()
-    return jsonify(
-        {
-            'tests':
-                [item.to_dict(only=('id_teacher', 'id_group', 'id_questions', 'name'))
-                 for item in allTests]
-        }
-    )
+# @blueprint.route('/api/tests')
+# @login_required
+# def get_tests():
+#     db_sess = db_session.create_session()
+#     allTests = db_sess.query(GroupTest).filter(GroupTest.id_teacher == 1).all()
+#     return jsonify(
+#         {
+#             'tests':
+#                 [item.to_dict(only=('id_teacher', 'id_group', 'id_questions', 'name'))
+#                  for item in allTests]
+#         }
+#     )
 
 @blueprint.route('/api/tests_resp/<int:tests_id>', methods=['GET'])
 @login_required
@@ -69,10 +68,10 @@ def get_test_for_response(tests_id):
     db_sess = db_session.create_session()
     allTests = db_sess.query(GroupTest).get(tests_id)
     if not allTests:
-        return jsonify({'error': 'Not found1'})
+        return jsonify({'error': 'Not found'})
     json_resp = jsonify(
         {
-            'tests': allTests.to_dict(only=('id_teacher', 'id_group', 'id_questions', 'name'))
+            'tests': allTests.to_dict(only=('id_teacher', 'name'))
         }
     )
     return json_resp
@@ -102,7 +101,7 @@ def get_one_test(tests_id):
         return jsonify({'error': 'Not found1'})
     json_resp = jsonify(
         {
-            'tests': allTests.to_dict(only=('id_teacher', 'id_group', 'id_questions', 'name'))
+            'tests': allTests.to_dict(only=('id_teacher', 'name'))
         }
     )
     return render_template('testsReview.html', message=f'''Тест: "{json_resp.json['tests']['name'] }"''',

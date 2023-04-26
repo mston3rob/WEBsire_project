@@ -22,14 +22,24 @@
         <div class="table_for_homePage">
             {% for i in range(0, quantity, 2) %}
             <div class="row">
-                {% for j in range(i, i + 2) %}
+                {% if quantity == 1 %}
                 {% set a="location.href='/api/tests/" %}
-                {% set link = a + allTests[j].id|string + "'" %}
+                {% set link = a + allTests[0].id|string + "'" %}
                 <div onclick={{link}} class="cell_for_homePage">
-                    <p class="header_cell">{{allTests[j].name}}</p>
+                    <p class="header_cell">{{allTests[0].name}}</p>
                     <p class="text-left">{{current_user.initials}}</p>
                 </div>
+                {% endif %}
+                {% if quantity > 1 %}
+                {% for j in range(i, i + 2) %}
+                    {% set a="location.href='/api/tests/" %}
+                    {% set link = a + allTests[j].id|string + "'" %}
+                    <div onclick={{link}} class="cell_for_homePage">
+                        <p class="header_cell">{{allTests[j].name}}</p>
+                        <p class="text-left">{{current_user.initials}}</p>
+                    </div>
                 {% endfor %}
+                {% endif %}
             </div>
             {% endfor %}
         </div>

@@ -12,10 +12,8 @@ class Tests(SqlAlchemyBase, UserMixin, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     id_teacher = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=True) # кто выложил тест
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    #id_group = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=True) # для кого выложен
     questions = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=True) # вопрос
-    #correct_answer = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=True) # правильный ответ
-    #variant = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=True) # вариант
     test_redacting = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     time_test = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    is_published = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     tasks = orm.relationship("Test_tasks", back_populates='test')

@@ -1,4 +1,4 @@
-from flask import Flask, redirect, session, request, render_template
+from flask import Flask, redirect, session, request, render_template, make_response, jsonify, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, EmailField, FieldList, FormField, SelectField
@@ -277,6 +277,7 @@ def generate_tests():
                         test.questions = form.count.data
                         test.time_test = (':').join((str(form.time_to_test.data), str(form.ed_izm.data)))
                         test.test_redacting = True
+                        test.is_published = False
                         db_sess = db_session.create_session()
                         db_sess.add(test)
                         db_sess.commit()
@@ -297,6 +298,8 @@ def generate_tasks(id):
     if current_user.teacher:
         db_sess = db_session.create_session()
         what_test = db_sess.query(Test).filter(Test.id == id).first()
+        if what_test.is_published:
+            return 'access denied'
         id_what_test = what_test.id
         count = what_test.questions
         form = TaskGenerateForm()
@@ -308,15 +311,15 @@ def generate_tasks(id):
                         f_task = form.tasks_list[task]
                         cond = any(list(map(lambda x: len(x.strip('\r').strip()), f_task.condition.data.split('\n'))))
                         true_answ = len(f_task.true_answer.data.strip('\r').strip())
+                        if not(cond) or not(true_answ):
+                            return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums, message='Не все поля заполнены', pos='1')
                         if f_task.cost.data is None:
                             return render_template('tasks_generate.html', title='Создание заданий тестов', form=form,
                                                    nums=nums, message='Не тот тип данных для поля количество баллов', pos='1')
-                        if 0 >= f_task.cost.data:
+                        elif 0 >= f_task.cost.data:
                             return render_template('tasks_generate.html', title='Создание заданий тестов', form=form,
                                                    nums=nums, message='количество баллов должно быть больше нуля',
                                                    pos='1')
-                        if not(cond) or not(true_answ):
-                            return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums, message='Не все поля заполнены', pos='1')
                     for task_num in range(count):
                         db_sess = db_session.create_session()
                         old_task = db_sess.query(Test_task).filter(what_test.id == Test_task.id_test,

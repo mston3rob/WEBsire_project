@@ -8,7 +8,7 @@
             <p>{{ form.do_test_task(type="submit", class="btn btn-primary") }}</p>
             <p>{{ form.task_reset(type="submit", class="btn btn-secondary") }}</p>
         </div>
-        {% if message == 'Не все поля заполнены' %}
+        {% if pos == '1' %}
         <div class="alert alert-danger" role="alert">
                     {{ message }}
         </div>

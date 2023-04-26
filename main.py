@@ -308,25 +308,50 @@ def generate_tasks(id):
                         f_task = form.tasks_list[task]
                         cond = any(list(map(lambda x: len(x.strip('\r').strip()), f_task.condition.data.split('\n'))))
                         true_answ = len(f_task.true_answer.data.strip('\r').strip())
-                        cost = len(f_task.cost.data.strip('\r').strip())
-                        if not(cond) or not(true_answ) or not(cost):
-                            return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums, message='Не все поля заполнены')
-                    for task in range(count):
-                        f_task = form.tasks_list[task]
-                        task = Test_task()
-                        task.id_test = id_what_test
-                        task.question = f_task.condition.data
-                        if f_task.type_answer.data == 1:
-                            task.answers = 0
-                            task.type_answer = 1
-                        else:
-                            task.answers = ('@').join(list(map(lambda x: x.answer.data, f_task.answers)))
-                            task.type_answer = f_task.type_answer.data
-                        task.true_answer = f_task.true_answer.data
-                        task.cost = f_task.cost.data
+                        if f_task.cost.data is None:
+                            return render_template('tasks_generate.html', title='Создание заданий тестов', form=form,
+                                                   nums=nums, message='Не тот тип данных для поля количество баллов', pos='1')
+                        if 0 >= f_task.cost.data:
+                            return render_template('tasks_generate.html', title='Создание заданий тестов', form=form,
+                                                   nums=nums, message='количество баллов должно быть больше нуля',
+                                                   pos='1')
+                        if not(cond) or not(true_answ):
+                            return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums, message='Не все поля заполнены', pos='1')
+                    for task_num in range(count):
                         db_sess = db_session.create_session()
-                        db_sess.add(task)
-                        db_sess.commit()
+                        old_task = db_sess.query(Test_task).filter(what_test.id == Test_task.id_test,
+                                                                   task_num + 1 == Test_task.num_in_test).first()
+                        if old_task:
+                            f_task = form.tasks_list[task_num]
+                            old_task.id_test = id_what_test
+                            old_task.question = f_task.condition.data
+                            if f_task.type_answer.data == 1:
+                                old_task.answers = 0
+                                old_task.type_answer = 1
+                            else:
+                                old_task.answers = ('@').join(list(map(lambda x: x.answer.data, f_task.answers)))
+                                old_task.type_answer = f_task.type_answer.data
+                            old_task.true_answer = f_task.true_answer.data
+                            old_task.cost = f_task.cost.data
+                            old_task.num_in_test = task_num + 1
+                            db_sess.commit()
+                        else:
+                            f_task = form.tasks_list[task_num]
+                            task = Test_task()
+                            task.id_test = id_what_test
+                            task.question = f_task.condition.data
+                            if f_task.type_answer.data == 1:
+                                task.answers = 0
+                                task.type_answer = 1
+                            else:
+                                task.answers = ('@').join(list(map(lambda x: x.answer.data, f_task.answers)))
+                                task.type_answer = f_task.type_answer.data
+                            task.true_answer = f_task.true_answer.data
+                            task.cost = f_task.cost.data
+                            task.num_in_test = task_num + 1
+                            db_sess = db_session.create_session()
+                            db_sess.add(task)
+                            db_sess.commit()
             if form.task_reset.data:
                 pass
         return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums)

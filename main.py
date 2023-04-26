@@ -197,7 +197,6 @@ def class_generate():
             print(listOfPasswords)
             return render_template('class_generate.html', title='Создаие группы', form=form,
                             message='Не было введено ни одного инициала')
-
     return render_template('preClassGenerate.html', title='Создаие группы', form=form1)
 
 

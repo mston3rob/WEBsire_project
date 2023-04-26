@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, EmailField, FieldList, FormField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, InputRequired
-from data import db_session, users, groups, tests
+from data import db_session, users, groups, tests, test_tasks
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 import datetime
 import random
@@ -14,6 +14,7 @@ from forms.taskgenerate import TaskGenerateForm
 User = users.User
 Group = groups.Group
 Test = tests.Tests
+Test_task = test_tasks.Test_tasks
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -296,17 +297,36 @@ def generate_tasks(id):
     if current_user.teacher:
         db_sess = db_session.create_session()
         what_test = db_sess.query(Test).filter(Test.id == id).first()
+        id_what_test = what_test.id
         count = what_test.questions
         form = TaskGenerateForm()
         nums = [i for i in range(count)]
-        for task in form.tasks_list:
-            if task.condition.data is not None\
-                    or task.true_answer.data is not None:
-                print(task.condition.data, task.true_answer.data, task.type_answer.data, task.condition_file.data)
         if request.method == 'POST':
             if form.do_test_task.data:
                 if form.validate_on_submit:
-                    pass
+                    for task in range(count):
+                        f_task = form.tasks_list[task]
+                        cond = any(list(map(lambda x: len(x.strip('\r').strip()), f_task.condition.data.split('\n'))))
+                        true_answ = len(f_task.true_answer.data.strip('\r').strip())
+                        cost = len(f_task.cost.data.strip('\r').strip())
+                        if not(cond) or not(true_answ) or not(cost):
+                            return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums, message='Не все поля заполнены')
+                    for task in range(count):
+                        f_task = form.tasks_list[task]
+                        task = Test_task()
+                        task.id_test = id_what_test
+                        task.question = f_task.condition.data
+                        if f_task.type_answer.data == 1:
+                            task.answers = 0
+                            task.type_answer = 1
+                        else:
+                            task.answers = ('@').join(list(map(lambda x: x.answer.data, f_task.answers)))
+                            task.type_answer = f_task.type_answer.data
+                        task.true_answer = f_task.true_answer.data
+                        task.cost = f_task.cost.data
+                        db_sess = db_session.create_session()
+                        db_sess.add(task)
+                        db_sess.commit()
             if form.task_reset.data:
                 pass
         return render_template('tasks_generate.html', title='Создание заданий тестов', form=form, nums=nums)

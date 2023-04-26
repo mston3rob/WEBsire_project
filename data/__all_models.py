@@ -1,1 +1,1 @@
-from . import users, groups, tests
+from . import users, groups, tests, test_tasks

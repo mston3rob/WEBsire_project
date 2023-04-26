@@ -2,12 +2,18 @@
 
 {% block content %}
     <h1>Создание заданий теста</h1>
-    <form action="" method="post">
+    <form action="" method="post" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="form-row">
             <p>{{ form.do_test_task(type="submit", class="btn btn-primary") }}</p>
             <p>{{ form.task_reset(type="submit", class="btn btn-secondary") }}</p>
         </div>
+        {% if message == 'Не все поля заполнены' %}
+        <div class="alert alert-danger" role="alert">
+                    {{ message }}
+        </div>
+        {% endif %}
+
         {% for num in nums%}
         <div class="col-md6 border rounded">
             <h2>№{{ num + 1}}</h2>
@@ -54,6 +60,15 @@
                 </div>
             </div>
         </div>
+        <p>
+            {{ form.tasks_list[num].cost.label }}<br>
+            {{ form.tasks_list[num].cost(class="form-control", type="login") }}<br>
+            {% for error in form.tasks_list[num].cost.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
         <p>
 
         </p>

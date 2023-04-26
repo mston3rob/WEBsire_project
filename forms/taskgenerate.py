@@ -16,6 +16,7 @@ class TaskForm(FlaskForm):
         (1, 'Строка'),
         (2, 'Выбор из вариантов'),
         (3, 'Один выбор из вариантов')])
+    cost = IntegerField('Количество баллов за задание', validators=[DataRequired()])
 
 
 

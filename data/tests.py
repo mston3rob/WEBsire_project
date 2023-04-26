@@ -1,5 +1,7 @@
 import sqlalchemy
 from flask_login import UserMixin
+from sqlalchemy import orm
+
 from .db_session import SqlAlchemyBase
 from sqlalchemy_serializer import SerializerMixin
 
@@ -16,3 +18,4 @@ class Tests(SqlAlchemyBase, UserMixin, SerializerMixin):
     #variant = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=True) # вариант
     test_redacting = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     time_test = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    tasks = orm.relationship("Test_tasks", back_populates='test')

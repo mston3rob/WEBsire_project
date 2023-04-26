@@ -70,6 +70,13 @@ def get_result():
     pass
 
 
+@blueprint.route('/api/tests_delete/<int:tests_id>', methods=['GET', 'POST', 'DELETE'])
+@login_required
+def delete_test(tests_id):
+
+    return render_template('deliting_confirm.html', id=tests_id)
+
+
 @blueprint.route('/test_sharing/<int:tests_id>', methods=['GET', 'POST'])
 @login_required
 def test_sharing(tests_id):

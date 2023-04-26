@@ -152,6 +152,8 @@ def class_generate():
                     return render_template('class_generate.html', title='Создаие группы', form=form,
                                             message='Вы уже создавали группу с таким наименованием')
             listOfPasswords = []
+            trueInits = []
+            u = []
             key = generateAccessKey()
             for i in form.initials.data:
                 name = i['inits'].strip()
@@ -164,20 +166,23 @@ def class_generate():
                     user.teacher = False
                     user.login = form.login.data
                     user.hashed_key_access = None
-            if listOfPasswords:
-                for i in listOfPasswords:
-                    if len(i[0].split()) != 3:
-                        return render_template('class_generate.html', title='Создаие группы', form=form,
-                                message='ФИО введнеы неккоректно')
-                trueInits = []
-                for i in map(lambda x: x[0], listOfPasswords):
-                    trueInits.append(i)
-                for i in trueInits:
-                    if trueInits.count(i) != 1:
-                        return render_template('class_generate.html', title='Создаие группы', form=form,
-                                message='Змечены повторяющиеся ФИО')
-                db_sess.add(user)
-                db_sess.commit()
+                    if listOfPasswords:
+                        for j in listOfPasswords:
+                            if len(j[0].split()) != 3:
+                                return render_template('class_generate.html', title='Создаие группы', form=form,
+                                                       message='ФИО введнеы неккоректно')
+
+                        for j in listOfPasswords:
+                            trueInits.append(j[0])
+                        for j in trueInits:
+                            if trueInits.count(j) != 1:
+                                return render_template('class_generate.html', title='Создаие группы', form=form,
+                                                       message='Змечены повторяющиеся ФИО')
+                    u.append(user)
+
+                for i in u:
+                    db_sess.add(i)
+                    db_sess.commit()
                 group = Group()
                 group.login_group = form.login.data
                 group.name_group = form.name_group.data

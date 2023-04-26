@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Создание заданий теста</h1>
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="form-row">
+            <p>{{ form.do_test_task(type="submit", class="btn btn-primary") }}</p>
+            <p>{{ form.task_reset(type="submit", class="btn btn-secondary") }}</p>
+        </div>
+        {% if pos == '1' %}
+        <div class="alert alert-danger" role="alert">
+                    {{ message }}
+        </div>
+        {% endif %}
+
+        {% for num in nums%}
+        <div class="col-md6 border rounded">
+            <h2>№{{ num + 1}}</h2>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <div>
+            {{ form.tasks_list[num].condition.label }}
+            {{ form.tasks_list[num].condition(class="form-control", type="text", row="3")}}
+                    </div>
+                </div>
+                <div class="form-group col-md-4">
+                {{ form.tasks_list[num].condition_file.label }}
+                {{ form.tasks_list[num].condition_file }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {% if form.tasks_list[num].type_answer.data != 1 %}
+                    <p>Варинты ответов:</p>
+                        {% for answ in form.tasks_list[num].answers %}
+                        {{ answ }}<br>
+                        {% for error in answ.error %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                        {% endfor %}
+                    {% endif%}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.tasks_list[num].true_answer.label }}<br>
+                    {{ form.tasks_list[num].true_answer(class="form-control", type="text") }}<br>
+                    {% for error in form.tasks_list[num].true_answer.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="form-group col-md-4">
+                {{ form.tasks_list[num].type_answer.label }}
+                {{ form.tasks_list[num].type_answer }}
+                </div>
+            </div>
+        </div>
+        <p>
+            {{ form.tasks_list[num].cost.label }}<br>
+            {{ form.tasks_list[num].cost(class="form-control", type="login") }}<br>
+            {% for error in form.tasks_list[num].cost.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+
+        </p>
+        {% endfor %}
+
+        <a class="btn btn-secondary " href="/listtestst">Вернуться</a>
+    </form>
+{% endblock %}

@@ -266,7 +266,6 @@ def home():
 def main():
     db_session.global_init("db/tests.db")
     app.register_blueprint(tests_api.blueprint)
-    # db_sess = db_session.create_session()
     app.run()
 
     # port = int(os.environ.get("PORT", 5000))

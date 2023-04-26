@@ -17,8 +17,8 @@ User = users.User
 Group = groups.Group
 Test = tests.Tests
 Test_task = test_tasks.Test_tasks
-GroupTest = groups_tests.GroupTest
-Question = tests.Question
+GroupTest = tests.Tests
+# Question = tests.Question
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -210,10 +210,6 @@ def listtestst():
         list_tests = []
         db_sess = db_session.create_session()
         allTests = db_sess.query(GroupTest).filter(GroupTest.id_teacher == current_user.id).all()
-        for i in allTests:
-            for j in list(map(int, i.id_questions.split(';'))):
-                question = db_sess.query(Question).filter(Question.id == j).first()
-                list_tests.append(question)
         return render_template('teacher_home.html', title='Ваши тесты', quantity=len(allTests), allTests=allTests)
     else:
         return 'access denied'
